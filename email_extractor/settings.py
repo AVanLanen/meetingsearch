@@ -87,4 +87,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GMAIL_CREDENTIALS_FILE = os.path.join(BASE_DIR, 'credentials.json')
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Changed from os.environ.get to os.getenv
+os.environ.pop('OPENAI_API_KEY', None)

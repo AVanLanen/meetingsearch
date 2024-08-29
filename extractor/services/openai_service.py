@@ -5,6 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 openai.api_key = settings.OPENAI_API_KEY
+print(settings.OPENAI_API_KEY)
 
 def analyze_email(subject, email_body):
     print("Analyzing email with OpenAI...")
