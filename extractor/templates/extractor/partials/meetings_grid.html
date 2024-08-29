@@ -1,0 +1,58 @@
+{% csrf_token %}
+<div class="overflow-x-auto">
+    <table class="min-w-full bg-white">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="py-2 px-4 border-b text-left">
+                    <input type="checkbox" @click="toggleAllMeetings">
+                </th>
+                <th class="py-2 px-4 border-b text-left">Title</th>
+                <th class="py-2 px-4 border-b text-left">Start</th>
+                <th class="py-2 px-4 border-b text-left">End</th>
+                <th class="py-2 px-4 border-b text-left">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for meeting in page_obj %}
+                <tr>
+                    <td class="py-2 px-4 border-b">
+                        <input type="checkbox" value="{{ meeting.id }}" x-model="selectedMeetings">
+                    </td>
+                    <td class="py-2 px-4 border-b">{{ meeting.title }}</td>
+                    <td class="py-2 px-4 border-b">{{ meeting.date }}</td>
+                    <td class="py-2 px-4 border-b">{{ meeting.end_date }}</td>
+                    <td class="py-2 px-4 border-b">
+                        <button 
+                            hx-post="{% url 'delete_meeting' meeting.id %}"
+                            hx-target="#meetings-grid"
+                            hx-swap="innerHTML"
+                            hx-confirm="Are you sure you want to delete this meeting?"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-1 px-2 rounded"
+                        >
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4 flex justify-between items-center">
+    <span class="text-gray-600">
+        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} meetings
+    </span>
+    <div class="space-x-2">
+        {% if page_obj.has_previous %}
+            <button hx-get="{% url 'upcoming_meetings' %}?page={{ page_obj.previous_page_number }}" hx-target="#meetings-grid" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Previous
+            </button>
+        {% endif %}
+        {% if page_obj.has_next %}
+            <button hx-get="{% url 'upcoming_meetings' %}?page={{ page_obj.next_page_number }}" hx-target="#meetings-grid" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Next
+            </button>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,57 @@
+<div id="review-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-lg font-semibold text-gray-900">Review Potential Meetings</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-4 mb-4">
+                <p>Fetched {{ total_emails }} emails from the last 3 days.</p>
+                <p>Processed {{ processed_count }} new emails.</p>
+                <p>Found {{ new_meetings_count }} potential new meetings.</p>
+            </div>
+            <div id="meetings-list" class="mt-4 flex-grow overflow-y-auto" style="max-height: 60vh;">
+                {% for meeting in potential_meetings %}
+                    <div id="meeting-card-{{ forloop.counter0 }}" class="mb-4 p-4 border rounded">
+                        <h4 class="font-semibold">{{ meeting.event_details.summary }}</h4>
+                        <p><strong>Start:</strong> {{ meeting.event_details.start.dateTime }}</p>
+                        <p><strong>End:</strong> {{ meeting.event_details.end.dateTime }}</p>
+                        <p><strong>Email Subject:</strong> {{ meeting.email.subject }}</p>
+                        <p><strong>Email Snippet:</strong> {{ meeting.email.snippet }}</p>
+                        <div class="mt-2 flex justify-end space-x-2">
+                            <button 
+                                hx-post="{% url 'reject_meeting' forloop.counter0 %}"
+                                hx-target="#meeting-card-{{ forloop.counter0 }}"
+                                hx-swap="outerHTML"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                Reject
+                            </button>
+                            <button 
+                                hx-post="{% url 'accept_meeting' forloop.counter0 %}"
+                                hx-target="#meeting-card-{{ forloop.counter0 }}"
+                                hx-swap="outerHTML"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                                Accept
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function closeModal() {
+    htmx.ajax('GET', '/upcoming_meetings/', {target: '#meetings-grid', swap: 'innerHTML'});
+    document.getElementById('review-modal').remove();
+}
+</script>
